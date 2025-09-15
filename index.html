@@ -51,7 +51,6 @@
       td.crossed {
         text-decoration: line-through;
         color: #fcc546;
-        font-weight: normal;
       }
       td.highlighted {
         color: #1da756;
@@ -61,6 +60,7 @@
       td.editable {
         cursor: text;
       }
+
       #contextMenu {
         position: absolute;
         display: none;
@@ -85,6 +85,34 @@
       #contextMenu div:hover {
         background: #ffd369;
         color: #222831;
+      }
+
+      /* Mobile-specific adjustments */
+      @media (max-width: 700px) {
+        body {
+          padding: 10px;
+        }
+        h1 {
+          font-size: 1.6em;
+        }
+        button {
+          font-size: 1.1em;
+          padding: 10px 16px;
+        }
+        th,
+        td {
+          font-size: 1em;
+          padding: 12px;
+          min-width: 60px;
+        }
+        #contextMenu div {
+          font-size: 22px;
+          padding: 14px 18px;
+        }
+        #contextMenu div:hover {
+          background: #393e46; /* disable hover effect */
+          color: #ffd369;
+        }
       }
     </style>
   </head>
@@ -198,8 +226,7 @@
             currentCell.textContent = symbols.join(' ')
           } else currentCell.textContent = ''
           contextMenu.style.display = 'none'
-          updateRowLogic(currentCell.parentElement)
-          updateKnownCounters()
+          applyLogic(currentCell.parentElement)
           saveState()
         }
         contextMenu.appendChild(div)
@@ -221,10 +248,13 @@
         let left = rect.left + window.scrollX
         let top = rect.bottom + window.scrollY
 
+        // Flip vertically if needed
         if (top + contextMenu.offsetHeight > tableRect.bottom + window.scrollY)
           top = rect.top + window.scrollY - contextMenu.offsetHeight
         if (top < tableRect.top + window.scrollY)
           top = tableRect.top + window.scrollY + 4
+
+        // Adjust horizontally
         if (left + contextMenu.offsetWidth > tableRect.right + window.scrollX)
           left = Math.max(
             rect.right + window.scrollX - contextMenu.offsetWidth,
@@ -259,7 +289,7 @@
           ).join('')
         sheet.appendChild(header)
 
-        // Known cards tracker row
+        // Known cards tracker
         const knownRow = document.createElement('tr')
         knownRow.id = 'knownCardsRow'
         knownRow.innerHTML =
@@ -282,9 +312,8 @@
             nameCell.dataset.clickState = '0'
             nameCell.style.cursor = 'pointer'
             nameCell.addEventListener('click', () => {
-              let state = parseInt(nameCell.dataset.clickState)
+              const state = parseInt(nameCell.dataset.clickState)
               nameCell.classList.remove('crossed', 'highlighted')
-              nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
               if (state === 0) {
                 nameCell.classList.add('crossed')
                 nameCell.dataset.clickState = '1'
@@ -292,9 +321,10 @@
                 nameCell.classList.add('highlighted')
                 nameCell.dataset.clickState = '2'
                 nameCell.textContent = '➡️ ' + item
-              } else nameCell.dataset.clickState = '0'
-              updateRowLogic(row)
-              updateKnownCounters()
+              } else {
+                nameCell.dataset.clickState = '0'
+                nameCell.textContent = item
+              }
               saveState()
             })
             row.appendChild(nameCell)
@@ -309,59 +339,32 @@
         if (saveHistory) saveState()
       }
 
-      // Logic for row
-      function updateRowLogic(row) {
+      // Apply logic for cross/highlight based on marks
+      function applyLogic(row) {
         const cells = Array.from(row.querySelectorAll('td.clickable'))
         const nameCell = row.querySelector('td:first-child')
-        const hasCheck = cells.some((c) => c.textContent.includes('✅'))
+        const rowText = cells.map((c) => c.textContent).join(' ')
+        nameCell.classList.remove('crossed', 'highlighted')
 
-        // Fill ❌ if any ✅ exists
-        if (hasCheck) {
-          cells.forEach((c) => {
-            if (!c.textContent.includes('✅') && !c.textContent.includes('❌'))
-              c.textContent = '❌'
-          })
+        // If any checkmark, cross out name
+        if (rowText.includes('✅')) {
           nameCell.classList.add('crossed')
-          nameCell.classList.remove('highlighted')
-          nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
-          return
         }
 
-        const xCount = (
-          cells
-            .map((c) => c.textContent)
-            .join(' ')
-            .match(/❌/g) || []
-        ).length
-        if (xCount >= 3) {
+        // If 3 Xs and no checkmark, highlight in green
+        const xCount = (rowText.match(/❌/g) || []).length
+        if (xCount >= 3 && !rowText.includes('✅')) {
           nameCell.classList.add('highlighted')
-          nameCell.classList.remove('crossed')
-          if (!nameCell.textContent.startsWith('➡️ '))
-            nameCell.textContent = '➡️ ' + nameCell.textContent
-        } else {
-          // Only remove highlight if not manually clicked
-          if (nameCell.dataset.clickState === '0') {
-            nameCell.classList.remove('crossed', 'highlighted')
-            nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
-          }
+        }
+
+        // Update arrow for highlighted
+        if (nameCell.classList.contains('highlighted')) {
+          const itemName = nameCell.textContent.replace(/^➡️ /, '')
+          nameCell.textContent = '➡️ ' + itemName
         }
       }
 
-      // Update known cards counters
-      function updateKnownCounters() {
-        const knownRow = document.getElementById('knownCardsRow')
-        for (let i = 0; i < numPlayers; i++) {
-          const colIndex = i + 1
-          let count = 0
-          Array.from(sheet.querySelectorAll('tr')).forEach((row) => {
-            const cell = row.children[colIndex]
-            if (cell && cell.textContent.includes('✅')) count++
-          })
-          knownRow.children[colIndex].textContent = count
-        }
-      }
-
-      // Save/restore state
+      // Save/restore state for undo/redo
       function saveState() {
         const state = Array.from(sheet.querySelectorAll('td')).map((td) => ({
           text: td.textContent,
@@ -379,6 +382,8 @@
           td.textContent = item.text
           td.dataset.clickState = item.clickState
           td.classList.remove('crossed', 'highlighted')
+          if (item.clickState === '1') td.classList.add('crossed')
+          if (item.clickState === '2') td.classList.add('highlighted')
         })
         historyIndex = index
         updateButtons()
@@ -389,7 +394,7 @@
           historyIndex >= history.length - 1
       }
 
-      // Buttons
+      // Button events
       document.getElementById('undoBtn').addEventListener('click', () => {
         if (historyIndex > 0) restoreState(historyIndex - 1)
       })
@@ -415,6 +420,7 @@
           }
         })
 
+      // Initial build
       rebuildTable()
     </script>
   </body>
