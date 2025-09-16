@@ -4,9 +4,12 @@ This is an **interactive Cluedo Clue Sheet** built with HTML, CSS, and JavaScrip
 
 - Dynamic table for suspects, weapons, and rooms.
 - Clickable cells with a custom **context menu**:
-  - ❌, ✅, ❓ for tracking possibilities
-  - 1️⃣–6️⃣ to mark player ownership
-  - 🗑️ to clear a cell
+  - ❌ – card eliminated
+  - ✅ – card confirmed
+  - ❓ – unsure
+  - 1️⃣–5️⃣ – custom markers
+  - 👁️ – mark a card as revealed
+  - 🗑️ – clear a cell
 - Automatically updates **known cards counter** per player.
 - Highlights suspects or items based on logic:
   - 3 ❌ marks → bold green text
