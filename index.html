@@ -6,21 +6,26 @@
     <style>
       body {
         font-family: Arial;
-        background: #222831;
-        color: #eee;
+        background: #1f1f1f; /* body background */
+        color: #f5f5f5; /* main text */
         padding: 20px;
       }
       h1 {
-        color: #ffd369;
+        color: #ffd479; /* header text */
         text-align: center;
       }
       button {
         padding: 6px 12px;
-        background: #ffd369;
+        background: #8b5e3c; /* button background */
         border: none;
         border-radius: 6px;
-        color: #222831;
+        color: #f5f5f5; /* button text */
         cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      button:hover {
+        background: #ffd479; /* hover background */
+        color: #1f1f1f; /* hover text */
       }
       button:disabled {
         opacity: 0.5;
@@ -29,7 +34,7 @@
       table {
         border-collapse: collapse;
         width: 100%;
-        background: #393e46;
+        background: #333333; /* table background */
         margin-top: 10px;
         position: relative;
       }
@@ -42,19 +47,28 @@
         transition: all 0.2s ease;
       }
       th {
-        background: #ffd369;
-        color: #222831;
+        background: #8b5e3c; /* table headers */
+        color: #f5f5f5;
       }
       td.clickable {
         cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      td.clickable:hover {
+        background: #555555; /* subtle hover for cells */
       }
       td.crossed {
         text-decoration: line-through;
-        color: #fcc546;
+        color: #d94f4f; /* crossed cards */
         font-weight: normal;
       }
       td.highlighted {
-        color: #1da756;
+        color: #ffd479; /* highlighted cards */
+        font-weight: bold;
+      }
+      td.revealed {
+        background: #3aafa9; /* revealed card color */
+        color: #1f1f1f; /* text contrast on revealed */
         font-weight: bold;
       }
       th.editable,
@@ -64,8 +78,8 @@
       #contextMenu {
         position: absolute;
         display: none;
-        background: #393e46;
-        border: 1px solid #fcc546;
+        background: #333333;
+        border: 1px solid #ffd479;
         border-radius: 6px;
         box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
         z-index: 1000;
@@ -78,13 +92,14 @@
         cursor: pointer;
         text-align: center;
         font-size: 18px;
-        color: #ffd369;
-        background: #393e46;
+        color: #ffd479;
+        background: #333333;
         border-radius: 4px;
+        transition: all 0.2s ease;
       }
       #contextMenu div:hover {
-        background: #ffd369;
-        color: #222831;
+        background: #ffd479;
+        color: #1f1f1f;
       }
     </style>
   </head>
@@ -170,7 +185,7 @@
         '3️⃣',
         '4️⃣',
         '5️⃣',
-        '6️⃣',
+        '👁️',
         '🗑️',
       ]
       let currentCell = null
@@ -184,19 +199,35 @@
         div.onclick = () => {
           if (!currentCell) return
           let symbols = currentCell.textContent.split(' ').filter((s) => s)
-          if (option !== '🗑️') {
+
+          if (option === '🗑️') {
+            currentCell.textContent = ''
+            currentCell.classList.remove('revealed')
+          } else if (option === '👁️') {
+            // toggle revealed
+            if (currentCell.classList.contains('revealed')) {
+              currentCell.classList.remove('revealed')
+              symbols = symbols.filter((s) => s !== '👁️')
+            } else {
+              currentCell.classList.add('revealed')
+              if (!symbols.includes('👁️')) symbols.push('👁️')
+            }
+            currentCell.textContent = symbols.join(' ')
+          } else {
             if (['❌', '✅', '❓'].includes(option)) {
               symbols = symbols.includes(option)
                 ? symbols.filter((s) => s !== option)
                 : symbols
                     .filter((s) => !['❌', '✅', '❓'].includes(s))
                     .concat(option)
-            } else
+            } else {
               symbols = symbols.includes(option)
                 ? symbols.filter((s) => s !== option)
                 : symbols.concat(option)
+            }
             currentCell.textContent = symbols.join(' ')
-          } else currentCell.textContent = ''
+          }
+
           contextMenu.style.display = 'none'
           updateRowLogic(currentCell.parentElement)
           updateKnownCounters()
@@ -266,7 +297,7 @@
           `<td>Known</td>` +
           Array.from(
             { length: numPlayers },
-            () => `<td contenteditable="true" class="editable">0</td>`
+            () => `<td>0</td>` // removed contenteditable
           ).join('')
         sheet.appendChild(knownRow)
 
@@ -339,7 +370,6 @@
           if (!nameCell.textContent.startsWith('➡️ '))
             nameCell.textContent = '➡️ ' + nameCell.textContent
         } else {
-          // Only remove highlight if not manually clicked
           if (nameCell.dataset.clickState === '0') {
             nameCell.classList.remove('crossed', 'highlighted')
             nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
@@ -366,6 +396,7 @@
         const state = Array.from(sheet.querySelectorAll('td')).map((td) => ({
           text: td.textContent,
           clickState: td.dataset.clickState || '0',
+          revealed: td.classList.contains('revealed'),
         }))
         history = history.slice(0, historyIndex + 1)
         history.push(state)
@@ -378,7 +409,8 @@
           const td = cells[i]
           td.textContent = item.text
           td.dataset.clickState = item.clickState
-          td.classList.remove('crossed', 'highlighted')
+          td.classList.remove('crossed', 'highlighted', 'revealed')
+          if (item.revealed) td.classList.add('revealed')
         })
         historyIndex = index
         updateButtons()
