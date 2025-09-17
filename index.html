@@ -40,7 +40,6 @@
         opacity: 0.5;
         cursor: not-allowed;
       }
-      /* Controls container above table */
       .table-controls {
         display: flex;
         justify-content: space-between;
@@ -52,7 +51,7 @@
         border-collapse: collapse;
         width: 90%;
         max-width: 1000px;
-        background: #333333; /* table background */
+        background: #333333;
         margin-top: 0;
         position: relative;
         font-size: 16px;
@@ -67,34 +66,24 @@
         position: relative;
       }
       th {
-        background: #8b5e3c; /* table headers */
+        background: #8b5e3c;
         color: #f5f5f5;
         font-size: 17px;
       }
       td.clickable {
         cursor: pointer;
-        transition: all 0.2s ease;
       }
       td.clickable:hover {
-        background: #555555; /* subtle hover for cells */
+        background: #555555;
       }
       td.crossed {
         text-decoration: line-through;
-        color: #d94f4f; /* crossed cards */
+        color: #d94f4f;
         font-weight: normal;
       }
       td.highlighted {
-        color: #ffd479; /* highlighted cards */
+        color: #1da756;
         font-weight: bold;
-      }
-      td.revealed {
-        background: #3aafa9; /* revealed card color */
-        color: #1f1f1f; /* text contrast on revealed */
-        font-weight: bold;
-      }
-      th.editable,
-      td.editable {
-        cursor: text;
       }
       td .eye-icon {
         position: absolute;
@@ -102,7 +91,21 @@
         right: 2px;
         font-size: 12px;
         color: #ffd369;
-        pointer-events: none; /* icon won't interfere with clicks */
+        pointer-events: none;
+      }
+      td .numbers {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        display: flex;
+        gap: 2px;
+        font-size: 12px;
+        color: #ffd479;
+        pointer-events: none;
+      }
+      .marker {
+        font-size: 18px;
+        display: inline-block;
       }
       #contextMenu {
         position: absolute;
@@ -129,6 +132,16 @@
       #contextMenu div:hover {
         background: #ffd479;
         color: #1f1f1f;
+      }
+      footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #ffd369;
+      }
+      footer a {
+        color: #ffd369;
+        text-decoration: underline;
       }
     </style>
   </head>
@@ -224,6 +237,14 @@
       let history = [],
         historyIndex = -1
 
+      const numberIcons = {
+        '1️⃣': '<i class="ri-number-1"></i>',
+        '2️⃣': '<i class="ri-number-2"></i>',
+        '3️⃣': '<i class="ri-number-3"></i>',
+        '4️⃣': '<i class="ri-number-4"></i>',
+        '5️⃣': '<i class="ri-number-5"></i>',
+      }
+
       // Build context menu
       menuOptions.forEach((option) => {
         const div = document.createElement('div')
@@ -231,35 +252,46 @@
         div.onclick = () => {
           if (!currentCell) return
 
-          // Remove existing icon if any
+          // get or create marker span
+          let marker = currentCell.querySelector('.marker')
+          if (!marker) {
+            marker = document.createElement('span')
+            marker.classList.add('marker')
+            currentCell.appendChild(marker)
+          }
+
           const existingIcon = currentCell.querySelector('.eye-icon')
 
           if (option === '🗑️') {
-            currentCell.textContent = ''
+            // clear everything inside clickable cell
+            marker.textContent = ''
+            const numbers = currentCell.querySelector('.numbers')
+            if (numbers) numbers.remove()
             if (existingIcon) existingIcon.remove()
           } else if (option === '👁️') {
-            // eye option
             if (existingIcon) existingIcon.remove()
             else {
               const icon = document.createElement('i')
               icon.className = 'ri-eye-line eye-icon'
               currentCell.appendChild(icon)
             }
-          } else {
-            let symbols = currentCell.textContent.split(' ').filter((s) => s)
-            if (['❌', '✅', '❓'].includes(option)) {
-              symbols = symbols.includes(option)
-                ? symbols.filter((s) => s !== option)
-                : symbols
-                    .filter((s) => !['❌', '✅', '❓'].includes(s))
-                    .concat(option)
-            } else
-              symbols = symbols.includes(option)
-                ? symbols.filter((s) => s !== option)
-                : symbols.concat(option)
-
-            currentCell.textContent = symbols.join(' ')
-            if (existingIcon) currentCell.appendChild(existingIcon)
+          } else if (['❌', '✅', '❓'].includes(option)) {
+            marker.textContent = option
+          } else if (Object.keys(numberIcons).includes(option)) {
+            // numbers: toggle inside .numbers container
+            let numbers = currentCell.querySelector('.numbers')
+            if (!numbers) {
+              numbers = document.createElement('div')
+              numbers.classList.add('numbers')
+              currentCell.appendChild(numbers)
+            }
+            // toggle specific number icon HTML
+            const iconHtml = numberIcons[option]
+            if (numbers.innerHTML.includes(iconHtml)) {
+              numbers.innerHTML = numbers.innerHTML.replace(iconHtml, '')
+            } else {
+              numbers.innerHTML += iconHtml
+            }
           }
 
           contextMenu.style.display = 'none'
@@ -270,7 +302,7 @@
         contextMenu.appendChild(div)
       })
 
-      // Show context menu
+      // Show context menu near clicked cell
       sheet.addEventListener('click', (e) => {
         if (!e.target.classList.contains('clickable')) {
           contextMenu.style.display = 'none'
@@ -286,17 +318,19 @@
         let left = rect.left + window.scrollX
         let top = rect.bottom + window.scrollY
 
-        if (top + contextMenu.offsetHeight > tableRect.bottom + window.scrollY)
-          top = rect.top + window.scrollY - contextMenu.offsetHeight
-        if (top < tableRect.top + window.scrollY)
-          top = tableRect.top + window.scrollY + 4
+        // ensure it doesn't go off the right/bottom of table viewport
         if (left + contextMenu.offsetWidth > tableRect.right + window.scrollX)
           left = Math.max(
             rect.right + window.scrollX - contextMenu.offsetWidth,
             tableRect.right + window.scrollX - contextMenu.offsetWidth - 4
           )
+        if (top + contextMenu.offsetHeight > tableRect.bottom + window.scrollY)
+          top = rect.top + window.scrollY - contextMenu.offsetHeight
+
         if (left < tableRect.left + window.scrollX)
           left = tableRect.left + window.scrollX + 4
+        if (top < tableRect.top + window.scrollY)
+          top = tableRect.top + window.scrollY + 4
 
         contextMenu.style.left = left + 'px'
         contextMenu.style.top = top + 'px'
@@ -310,8 +344,10 @@
           contextMenu.style.display = 'none'
       })
 
+      // build table
       function rebuildTable(saveHistory = true) {
         sheet.innerHTML = ''
+        // header row
         const header = document.createElement('tr')
         header.innerHTML =
           `<th>Card</th>` +
@@ -322,6 +358,7 @@
           ).join('')
         sheet.appendChild(header)
 
+        // known row
         const knownRow = document.createElement('tr')
         knownRow.id = 'knownCardsRow'
         knownRow.innerHTML =
@@ -329,10 +366,12 @@
           Array.from({ length: numPlayers }, () => `<td>0</td>`).join('')
         sheet.appendChild(knownRow)
 
+        // categories
         categories.forEach((cat) => {
           const catRow = document.createElement('tr')
           catRow.innerHTML = `<th colspan="${numPlayers + 1}">${cat.title}</th>`
           sheet.appendChild(catRow)
+
           cat.items.forEach((item) => {
             const row = document.createElement('tr')
             const nameCell = document.createElement('td')
@@ -340,42 +379,57 @@
             nameCell.dataset.clickState = '0'
             nameCell.style.cursor = 'pointer'
             nameCell.addEventListener('click', () => {
-              let state = parseInt(nameCell.dataset.clickState)
+              // cycle name states
+              let state = parseInt(nameCell.dataset.clickState || '0', 10)
               nameCell.classList.remove('crossed', 'highlighted')
               nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
-              if (state === 0) {
-                nameCell.classList.add('crossed')
-                nameCell.dataset.clickState = '1'
-              } else if (state === 1) {
+              state = (state + 1) % 3
+              nameCell.dataset.clickState = String(state)
+              if (state === 1) nameCell.classList.add('crossed')
+              else if (state === 2) {
                 nameCell.classList.add('highlighted')
-                nameCell.dataset.clickState = '2'
                 nameCell.textContent = '➡️ ' + item
-              } else nameCell.dataset.clickState = '0'
+              }
               updateRowLogic(row)
               updateKnownCounters()
               saveState()
             })
             row.appendChild(nameCell)
+
             for (let i = 0; i < numPlayers; i++) {
               const td = document.createElement('td')
               td.className = 'clickable'
               row.appendChild(td)
             }
+
             sheet.appendChild(row)
           })
         })
+
         if (saveHistory) saveState()
       }
 
+      // Main row logic using .marker / .eye-icon / .numbers elements
       function updateRowLogic(row) {
         const cells = Array.from(row.querySelectorAll('td.clickable'))
         const nameCell = row.querySelector('td:first-child')
-        const hasCheck = cells.some((c) => c.textContent.includes('✅'))
+
+        // detect any ✅ markers
+        const hasCheck = cells.some((c) => {
+          const m = c.querySelector('.marker')
+          return m && m.textContent === '✅'
+        })
 
         if (hasCheck) {
+          // auto-fill ❌ in other cells but preserve eye & numbers
           cells.forEach((c) => {
-            if (!c.textContent.includes('✅') && !c.textContent.includes('❌'))
-              c.textContent = '❌'
+            let m = c.querySelector('.marker')
+            if (!m) {
+              m = document.createElement('span')
+              m.classList.add('marker')
+              c.appendChild(m)
+            }
+            if (m.textContent !== '✅') m.textContent = '❌'
           })
           nameCell.classList.add('crossed')
           nameCell.classList.remove('highlighted')
@@ -383,21 +437,33 @@
           return
         }
 
-        const xCount = (
-          cells
-            .map((c) => c.textContent)
-            .join(' ')
-            .match(/❌/g) || []
-        ).length
+        // count ❌ markers
+        const xCount = cells.filter((c) => {
+          const m = c.querySelector('.marker')
+          return m && m.textContent === '❌'
+        }).length
+
         if (xCount >= 3) {
           nameCell.classList.add('highlighted')
           nameCell.classList.remove('crossed')
           if (!nameCell.textContent.startsWith('➡️ '))
             nameCell.textContent = '➡️ ' + nameCell.textContent
         } else {
+          // respect manual name state if set to crossed/highlight by clicks; otherwise reset
           if (nameCell.dataset.clickState === '0') {
             nameCell.classList.remove('crossed', 'highlighted')
             nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
+          } else {
+            // manual state will be visually handled by the click handler already
+            if (nameCell.dataset.clickState === '1') {
+              nameCell.classList.add('crossed')
+              nameCell.classList.remove('highlighted')
+            } else if (nameCell.dataset.clickState === '2') {
+              nameCell.classList.add('highlighted')
+              nameCell.classList.remove('crossed')
+              if (!nameCell.textContent.startsWith('➡️ '))
+                nameCell.textContent = '➡️ ' + nameCell.textContent
+            }
           }
         }
       }
@@ -409,35 +475,93 @@
           let count = 0
           Array.from(sheet.querySelectorAll('tr')).forEach((row) => {
             const cell = row.children[colIndex]
-            if (cell && cell.textContent.includes('✅')) count++
+            const m = cell ? cell.querySelector('.marker') : null
+            if (m && m.textContent === '✅') count++
           })
           knownRow.children[colIndex].textContent = count
         }
       }
 
+      // Save snapshot of every td (text + marker + numbers + eye + clickState)
       function saveState() {
-        const state = Array.from(sheet.querySelectorAll('td')).map((td) => ({
-          text: td.textContent,
-          clickState: td.dataset.clickState || '0',
-          revealed: td.classList.contains('revealed'),
-        }))
+        const tds = Array.from(sheet.querySelectorAll('td'))
+        const snapshot = tds.map((td) => {
+          return {
+            text: td.textContent || '',
+            marker: td.querySelector('.marker')
+              ? td.querySelector('.marker').textContent
+              : '',
+            numbers: td.querySelector('.numbers')
+              ? td.querySelector('.numbers').innerHTML
+              : '',
+            hasEye: !!td.querySelector('.eye-icon'),
+            clickState: td.dataset.clickState || '0',
+          }
+        })
         history = history.slice(0, historyIndex + 1)
-        history.push(state)
+        history.push(snapshot)
         historyIndex++
         updateButtons()
       }
 
+      // Restore snapshot and recompute visuals
       function restoreState(index) {
-        const cells = Array.from(sheet.querySelectorAll('td'))
-        history[index].forEach((item, i) => {
-          const td = cells[i]
-          td.textContent = item.text
-          td.dataset.clickState = item.clickState
-          td.classList.remove('crossed', 'highlighted', 'revealed')
-          if (item.revealed) td.classList.add('revealed')
-        })
+        if (index < 0 || index >= history.length) return
+        const snapshot = history[index]
+        const tds = Array.from(sheet.querySelectorAll('td'))
+        for (let i = 0; i < tds.length; i++) {
+          const td = tds[i]
+          const item = snapshot[i] || {
+            text: '',
+            marker: '',
+            numbers: '',
+            hasEye: false,
+            clickState: '0',
+          }
+          // clear
+          td.innerHTML = ''
+          // restore dataset
+          td.dataset.clickState = item.clickState || '0'
+          // for name cells and known cells (non-clickable), restore text content
+          if (!td.classList.contains('clickable')) {
+            td.textContent = item.text || ''
+          } else {
+            // clickable cells: reconstruct marker, eye, numbers (don't put plain text)
+            if (item.marker) {
+              const marker = document.createElement('span')
+              marker.classList.add('marker')
+              marker.textContent = item.marker
+              td.appendChild(marker)
+            }
+            if (item.hasEye) {
+              const icon = document.createElement('i')
+              icon.className = 'ri-eye-line eye-icon'
+              td.appendChild(icon)
+            }
+            if (item.numbers) {
+              const numbers = document.createElement('div')
+              numbers.classList.add('numbers')
+              numbers.innerHTML = item.numbers
+              td.appendChild(numbers)
+            }
+          }
+        }
         historyIndex = index
+        // recompute rows and counters to reflect restored markers
+        recomputeAllRows()
+        updateKnownCounters()
         updateButtons()
+      }
+
+      function recomputeAllRows() {
+        const rows = Array.from(sheet.querySelectorAll('tr'))
+        rows.forEach((row) => {
+          // skip header row and known row
+          if (row.id === 'knownCardsRow') return
+          // only rows that actually have clickable tds (card rows)
+          if (row.querySelectorAll('td.clickable').length > 0)
+            updateRowLogic(row)
+        })
       }
 
       function updateButtons() {
@@ -446,6 +570,7 @@
           historyIndex >= history.length - 1
       }
 
+      // wire events
       document.getElementById('undoBtn').addEventListener('click', () => {
         if (historyIndex > 0) restoreState(historyIndex - 1)
       })
@@ -471,23 +596,17 @@
           }
         })
 
+      // initial build
       rebuildTable()
     </script>
-    <footer
-      style="
-        text-align: center;
-        margin-top: 20px;
-        font-size: 14px;
-        color: #ffd369;
-      "
-    >
+
+    <footer>
       <a
         href="https://github.com/MasterBatess/cluedo-clue-sheet"
         target="_blank"
-        style="color: #ffd369; text-decoration: underline"
+        >Source code</a
       >
-        Source code
-      </a>
+      | Icons by <a href="https://remixicon.com/" target="_blank">Remix Icon</a>
     </footer>
   </body>
 </html>
