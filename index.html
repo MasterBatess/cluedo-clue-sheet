@@ -2,146 +2,322 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cluedo Clue Sheet</title>
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
       rel="stylesheet"
     />
     <style>
+      :root {
+        --vh: 1vh;
+        --base-font-size: 16px;
+        --base-padding: 0.5rem;
+        --base-cell-size: 3.5vmin;
+      }
+
       body {
         font-family: Arial;
-        background: #1f1f1f; /* body background */
-        color: #f5f5f5; /* main text */
-        padding: 20px;
+        background: #1f1f1f;
+        color: #f5f5f5;
+        padding: calc(var(--base-padding) * 1.5);
         display: flex;
         flex-direction: column;
         align-items: center;
+        overflow-x: auto;
+        min-height: 100vh;
+        min-height: calc(var(--vh, 1vh) * 100);
+        box-sizing: border-box;
+        font-size: var(--base-font-size);
       }
+
       h1 {
-        color: #ffd479; /* header text */
+        color: #ffd479;
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: calc(var(--base-padding) * 1.5);
+        font-size: clamp(1.2rem, 4vmin, 1.8rem);
+        line-height: 1.2;
       }
+
       button {
-        padding: 8px 16px;
-        background: #8b5e3c; /* button background */
+        padding: calc(var(--base-padding) * 1.2) calc(var(--base-padding) * 2);
+        background: #8b5e3c;
         border: none;
-        border-radius: 6px;
-        color: #f5f5f5; /* button text */
+        border-radius: 0.375rem;
+        color: #f5f5f5;
         cursor: pointer;
         transition: all 0.2s ease;
-        font-size: 16px;
+        font-size: clamp(0.75rem, 2.5vmin, 1rem);
+        min-height: calc(var(--base-cell-size) * 1.5);
+        min-width: calc(var(--base-cell-size) * 4);
       }
+
       button:hover {
-        background: #ffd479; /* hover background */
-        color: #1f1f1f; /* hover text */
+        background: #ffd479;
+        color: #1f1f1f;
       }
+
       button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
+
       .table-controls {
         display: flex;
         justify-content: space-between;
-        width: 90%;
+        width: 100%;
         max-width: 1000px;
-        margin-bottom: 10px;
+        margin-bottom: calc(var(--base-padding) * 2);
+        flex-wrap: wrap;
+        gap: calc(var(--base-padding) * 1.5);
+        min-height: calc(var(--base-cell-size) * 2);
       }
+
       table {
         border-collapse: collapse;
-        width: 90%;
+        width: 100%;
         max-width: 1000px;
         background: #333333;
         margin-top: 0;
         position: relative;
-        font-size: 16px;
+        font-size: clamp(0.75rem, 2.5vmin, 1rem);
+        table-layout: fixed;
+        height: auto;
       }
+
       th,
       td {
         border: 1px solid #444;
-        padding: 10px;
+        padding: calc(var(--base-padding) * 0.8);
         text-align: center;
-        min-width: 60px;
+        min-width: var(--base-cell-size);
+        min-height: var(--base-cell-size);
+        height: var(--base-cell-size);
         transition: all 0.2s ease;
         position: relative;
+        word-break: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
       }
+
       th {
         background: #8b5e3c;
         color: #f5f5f5;
-        font-size: 17px;
+        font-size: clamp(0.8rem, 2.8vmin, 1.1rem);
+        padding: calc(var(--base-padding) * 1);
+        min-height: calc(var(--base-cell-size) * 1.3);
       }
+
+      td:first-child {
+        min-width: calc(var(--base-cell-size) * 3);
+        max-width: calc(var(--base-cell-size) * 3);
+        font-size: clamp(0.7rem, 2.2vmin, 0.9rem);
+        text-align: left;
+        padding-left: calc(var(--base-padding) * 1.2);
+      }
+
       td.clickable {
         cursor: pointer;
       }
+
       td.clickable:hover {
         background: #555555;
       }
+
       td.crossed {
         text-decoration: line-through;
         color: #d94f4f;
         font-weight: normal;
       }
+
       td.highlighted {
         color: #1da756;
         font-weight: bold;
       }
+
       td .eye-icon {
         position: absolute;
         top: 2px;
         right: 2px;
-        font-size: 12px;
+        font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
         color: #ffd369;
         pointer-events: none;
       }
+
       td .numbers {
         position: absolute;
         bottom: 2px;
         right: 2px;
         display: flex;
-        gap: 2px;
-        font-size: 12px;
+        gap: 1px;
+        font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
         color: #ffd479;
         pointer-events: none;
       }
+
       .marker {
-        font-size: 18px;
+        font-size: clamp(0.8rem, 2.8vmin, 1.1rem);
         display: inline-block;
+        line-height: 1;
       }
+
       #contextMenu {
         position: absolute;
         display: none;
         background: #333333;
         border: 1px solid #ffd479;
-        border-radius: 6px;
+        border-radius: 0.375rem;
         box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
         z-index: 1000;
-        padding: 4px;
-        gap: 4px;
+        padding: calc(var(--base-padding) * 0.8);
+        gap: calc(var(--base-padding) * 0.8);
         white-space: nowrap;
+        flex-wrap: wrap;
+        max-width: calc(var(--base-cell-size) * 12);
+        min-height: calc(var(--base-cell-size) * 2);
       }
+
       #contextMenu div {
-        padding: 6px 10px;
+        padding: calc(var(--base-padding) * 0.8) calc(var(--base-padding) * 1.2);
         cursor: pointer;
         text-align: center;
-        font-size: 18px;
+        font-size: clamp(0.9rem, 3vmin, 1.2rem);
         color: #ffd479;
         background: #333333;
-        border-radius: 4px;
+        border-radius: 0.25rem;
         transition: all 0.2s ease;
+        flex: 1;
+        min-width: calc(var(--base-cell-size) * 1.8);
+        min-height: calc(var(--base-cell-size) * 1.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+
       #contextMenu div:hover {
         background: #ffd479;
         color: #1f1f1f;
       }
+
       footer {
         text-align: center;
-        margin-top: 20px;
-        font-size: 14px;
+        margin-top: calc(var(--base-padding) * 3);
+        font-size: clamp(0.7rem, 2vmin, 0.85rem);
         color: #ffd369;
+        padding: 0 calc(var(--base-padding) * 1.5);
+        line-height: 1.4;
       }
+
       footer a {
         color: #ffd369;
         text-decoration: underline;
+      }
+
+      /* Мобильная адаптация */
+      @media (max-width: 768px) {
+        :root {
+          --base-font-size: 14px;
+          --base-padding: 0.4rem;
+          --base-cell-size: 4vmin;
+        }
+
+        body {
+          padding: calc(var(--base-padding) * 1.2);
+        }
+
+        .table-controls {
+          flex-direction: column;
+          align-items: center;
+          gap: calc(var(--base-padding) * 1.2);
+        }
+
+        th,
+        td {
+          padding: calc(var(--base-padding) * 0.6);
+          min-height: calc(var(--base-cell-size) * 1.1);
+          height: calc(var(--base-cell-size) * 1.1);
+        }
+
+        td:first-child {
+          min-width: calc(var(--base-cell-size) * 2.8);
+          max-width: calc(var(--base-cell-size) * 2.8);
+          padding-left: calc(var(--base-padding) * 0.8);
+        }
+
+        #contextMenu {
+          max-width: calc(var(--base-cell-size) * 10);
+        }
+      }
+
+      @media (max-width: 480px) {
+        :root {
+          --base-font-size: 12px;
+          --base-padding: 0.3rem;
+          --base-cell-size: 4.5vmin;
+        }
+
+        body {
+          padding: var(--base-padding);
+        }
+
+        th,
+        td {
+          padding: calc(var(--base-padding) * 0.5);
+          min-height: calc(var(--base-cell-size) * 1.05);
+          height: calc(var(--base-cell-size) * 1.05);
+        }
+
+        td:first-child {
+          min-width: calc(var(--base-cell-size) * 2.5);
+          max-width: calc(var(--base-cell-size) * 2.5);
+          padding-left: calc(var(--base-padding) * 0.6);
+        }
+
+        #contextMenu {
+          max-width: calc(var(--base-cell-size) * 8);
+        }
+
+        #contextMenu div {
+          padding: calc(var(--base-padding) * 0.6)
+            calc(var(--base-padding) * 0.8);
+          min-width: calc(var(--base-cell-size) * 1.5);
+          min-height: calc(var(--base-cell-size) * 1.3);
+        }
+      }
+
+      @media (max-height: 600px) {
+        :root {
+          --base-cell-size: 3vmin;
+        }
+
+        h1 {
+          margin-bottom: calc(var(--base-padding) * 0.8);
+          font-size: clamp(1rem, 3.5vmin, 1.5rem);
+        }
+
+        .table-controls {
+          margin-bottom: calc(var(--base-padding) * 1);
+        }
+
+        footer {
+          margin-top: calc(var(--base-padding) * 1.5);
+        }
+      }
+
+      @media (max-height: 400px) {
+        :root {
+          --base-cell-size: 2.5vmin;
+        }
+
+        body {
+          padding: calc(var(--base-padding) * 0.8);
+        }
+
+        h1 {
+          font-size: clamp(0.9rem, 3vmin, 1.2rem);
+          margin-bottom: calc(var(--base-padding) * 0.5);
+        }
       }
     </style>
   </head>
@@ -157,7 +333,7 @@
         id="playerControls"
         style="display: flex; align-items: center; gap: 4px"
       >
-        <button id="decreasePlayers" style="padding: 4px 8px; font-size: 14px">
+        <button id="decreasePlayers" style="padding: 4px 8px; font-size: 12px">
           -
         </button>
         <div
@@ -166,7 +342,7 @@
         >
           3
         </div>
-        <button id="increasePlayers" style="padding: 4px 8px; font-size: 14px">
+        <button id="increasePlayers" style="padding: 4px 8px; font-size: 12px">
           +
         </button>
       </div>
@@ -176,6 +352,17 @@
     <div id="contextMenu"></div>
 
     <script>
+      // Установка высоты viewport для мобильных устройств
+      function setVhUnit() {
+        const vh = window.innerHeight * 0.01
+        document.documentElement.style.setProperty('--vh', `${vh}px`)
+      }
+
+      // Инициализация при загрузке и изменении размера
+      setVhUnit()
+      window.addEventListener('resize', setVhUnit)
+      window.addEventListener('orientationchange', setVhUnit)
+
       const categories = [
         {
           title: 'Suspects',
@@ -312,7 +499,7 @@
         const rect = e.target.getBoundingClientRect()
         const tableRect = sheet.getBoundingClientRect()
         contextMenu.style.display = 'flex'
-        contextMenu.style.flexWrap = 'nowrap'
+        contextMenu.style.flexWrap = 'wrap'
         contextMenu.style.width = 'auto'
 
         let left = rect.left + window.scrollX
@@ -598,6 +785,38 @@
 
       // initial build
       rebuildTable()
+
+      // Добавляем обработчик изменения ориентации для пересчета размеров
+      window.addEventListener('resize', function () {
+        setVhUnit()
+        // При изменении размера окна перестраиваем контекстное меню, если оно открыто
+        if (contextMenu.style.display === 'flex' && currentCell) {
+          const rect = currentCell.getBoundingClientRect()
+          const tableRect = sheet.getBoundingClientRect()
+
+          let left = rect.left + window.scrollX
+          let top = rect.bottom + window.scrollY
+
+          if (left + contextMenu.offsetWidth > tableRect.right + window.scrollX)
+            left = Math.max(
+              rect.right + window.scrollX - contextMenu.offsetWidth,
+              tableRect.right + window.scrollX - contextMenu.offsetWidth - 4
+            )
+          if (
+            top + contextMenu.offsetHeight >
+            tableRect.bottom + window.scrollY
+          )
+            top = rect.top + window.scrollY - contextMenu.offsetHeight
+
+          if (left < tableRect.left + window.scrollX)
+            left = tableRect.left + window.scrollX + 4
+          if (top < tableRect.top + window.scrollY)
+            top = tableRect.top + window.scrollY + 4
+
+          contextMenu.style.left = left + 'px'
+          contextMenu.style.top = top + 'px'
+        }
+      })
     </script>
 
     <footer>
