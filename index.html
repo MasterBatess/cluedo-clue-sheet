@@ -213,8 +213,32 @@
         color: #ffd369;
         text-decoration: underline;
       }
+      /* Make increase/decrease player buttons smaller */
+      #increasePlayers,
+      #decreasePlayers {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        min-height: unset !important;
+        min-width: unset !important;
+      }
+      #undoBtn,
+      #redoBtn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        font-size: 0; /* hide text spacing */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+      }
 
-      /* Мобильная адаптация */
+      #undoBtn i,
+      #redoBtn i {
+        font-size: 18px;
+        line-height: 1;
+      }
+
       @media (max-width: 768px) {
         :root {
           --base-font-size: 14px;
@@ -325,26 +349,30 @@
     <h1>Cluedo Clue Sheet</h1>
 
     <div class="table-controls">
-      <div>
-        <button id="undoBtn">Undo</button>
-        <button id="redoBtn">Redo</button>
+      <div id="historyControls" style="display: flex; gap: 4px">
+        <button id="undoBtn" title="Undo">
+          <i class="ri-arrow-go-back-line"></i>
+        </button>
+        <button id="redoBtn" title="Redo">
+          <i class="ri-arrow-go-forward-line"></i>
+        </button>
       </div>
+
       <div
         id="playerControls"
-        style="display: flex; align-items: center; gap: 4px"
+        style="display: flex; align-items: center; gap: 6px"
       >
-        <button id="decreasePlayers" style="padding: 4px 8px; font-size: 12px">
-          -
-        </button>
+        <span id="playersLabel" style="font-weight: bold"
+          >Number of players:</span
+        >
+        <button id="decreasePlayers">-</button>
         <div
           id="numPlayersDisplay"
           style="font-weight: bold; min-width: 20px; text-align: center"
         >
           3
         </div>
-        <button id="increasePlayers" style="padding: 4px 8px; font-size: 12px">
-          +
-        </button>
+        <button id="increasePlayers">+</button>
       </div>
     </div>
 
@@ -352,13 +380,11 @@
     <div id="contextMenu"></div>
 
     <script>
-      // Установка высоты viewport для мобильных устройств
       function setVhUnit() {
         const vh = window.innerHeight * 0.01
         document.documentElement.style.setProperty('--vh', `${vh}px`)
       }
 
-      // Инициализация при загрузке и изменении размера
       setVhUnit()
       window.addEventListener('resize', setVhUnit)
       window.addEventListener('orientationchange', setVhUnit)
@@ -366,38 +392,31 @@
       const categories = [
         {
           title: 'Suspects',
-          items: [
-            'Miss Scarlet',
-            'Colonel Mustard',
-            'Mrs. Peacock',
-            'Professor Plum',
-            'Mr. Green',
-            'Dr. Orchid',
-          ],
+          items: ['Green', 'Mustard', 'Orchid', 'Peacock', 'Plum', 'Scarlett'],
         },
         {
           title: 'Weapons',
           items: [
-            'Knife',
             'Candlestick',
+            'Knife',
+            'Lead Pipe',
             'Revolver',
             'Rope',
-            'Lead Pipe',
             'Wrench',
           ],
         },
         {
           title: 'Rooms',
           items: [
-            'Kitchen',
             'Ballroom',
+            'Billiard Room',
             'Conservatory',
             'Dining Room',
-            'Lounge',
             'Hall',
-            'Study',
+            'Kitchen',
             'Library',
-            'Billiard Room',
+            'Lounge',
+            'Study',
           ],
         },
       ]
@@ -432,14 +451,12 @@
         '5️⃣': '<i class="ri-number-5"></i>',
       }
 
-      // Build context menu
       menuOptions.forEach((option) => {
         const div = document.createElement('div')
         div.textContent = option
         div.onclick = () => {
           if (!currentCell) return
 
-          // get or create marker span
           let marker = currentCell.querySelector('.marker')
           if (!marker) {
             marker = document.createElement('span')
@@ -450,7 +467,6 @@
           const existingIcon = currentCell.querySelector('.eye-icon')
 
           if (option === '🗑️') {
-            // clear everything inside clickable cell
             marker.textContent = ''
             const numbers = currentCell.querySelector('.numbers')
             if (numbers) numbers.remove()
@@ -786,10 +802,8 @@
       // initial build
       rebuildTable()
 
-      // Добавляем обработчик изменения ориентации для пересчета размеров
       window.addEventListener('resize', function () {
         setVhUnit()
-        // При изменении размера окна перестраиваем контекстное меню, если оно открыто
         if (contextMenu.style.display === 'flex' && currentCell) {
           const rect = currentCell.getBoundingClientRect()
           const tableRect = sheet.getBoundingClientRect()
