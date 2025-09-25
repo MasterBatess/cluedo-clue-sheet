@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://masterbatess.github.io/cluedo-clue-sheet/sitemap.xml
