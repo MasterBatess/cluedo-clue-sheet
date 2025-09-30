@@ -1,878 +1,424 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <meta
-      name="google-site-verification"
-      content="uFVivlcVW8PhzUL-Lquq-TewRboJrOcCAqF1daz1DK8"
+            content="uFVivlcVW8PhzUL-Lquq-TewRboJrOcCAqF1daz1DK8"
+            name="google-site-verification"
     />
     <meta
-      name="description"
-      content="A free online Cluedo clue sheet to track suspects, weapons, and rooms. Mark notes, reveal cards, and solve the mystery faster with friends."
+            content="A free online Cluedo clue sheet to track suspects, weapons, and rooms. Mark notes, reveal cards, and solve the mystery faster with friends."
+            name="description"
     />
     <meta
-      name="keywords"
-      content="Cluedo, Clue sheet, Cluedo online, Detective game, Mystery tracking, Board game helper"
+            content="Cluedo, Clue sheet, Cluedo online, Detective game, Mystery tracking, Board game helper"
+            name="keywords"
     />
-    <meta name="author" content="Master Bates" />
-    <meta name="robots" content="index, follow" />
+    <meta content="Master Bates" name="author"/>
+    <meta content="index, follow" name="robots"/>
     <meta
-      property="og:title"
-      content="Cluedo Clue Sheet – Online Detective Notepad"
+            content="Cluedo Clue Sheet – Online Detective Notepad"
+            property="og:title"
     />
     <meta
-      property="og:description"
-      content="Track suspects, weapons, and rooms in Cluedo. A free online clue sheet to play smarter."
+            content="Track suspects, weapons, and rooms in Cluedo. A free online clue sheet to play smarter."
+            property="og:description"
     />
-    <meta property="og:type" content="website" />
+    <meta content="website" property="og:type"/>
     <meta
-      property="og:url"
-      content="https://masterbatess.github.io/cluedo-clue-sheet/"
+            content="https://masterbatess.github.io/cluedo-clue-sheet/"
+            property="og:url"
     />
     <title>Cluedo Clue Sheet</title>
     <link
-      rel="icon"
-      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/icons/System/search-line.svg"
-      type="image/svg+xml"
+            href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/icons/System/search-line.svg"
+            rel="icon"
+            type="image/svg+xml"
     />
 
     <link
-      href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
-      rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+            rel="stylesheet"
     />
     <style>
-      :root {
-        --vh: 1vh;
-        --base-font-size: 16px;
-        --base-padding: 0.5rem;
-        --base-cell-size: 3.5vmin;
-      }
-
-      body {
-        font-family: Arial;
-        background: #1f1f1f;
-        color: #f5f5f5;
-        padding: calc(var(--base-padding) * 1.5);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        overflow-x: auto;
-        min-height: 100vh;
-        min-height: calc(var(--vh, 1vh) * 100);
-        box-sizing: border-box;
-        font-size: var(--base-font-size);
-      }
-
-      h1 {
-        color: #ffd479;
-        text-align: center;
-        margin-bottom: calc(var(--base-padding) * 1.5);
-        font-size: clamp(1.2rem, 4vmin, 1.8rem);
-        line-height: 1.2;
-      }
-
-      button {
-        padding: calc(var(--base-padding) * 1.2) calc(var(--base-padding) * 2);
-        background: #8b5e3c;
-        border: none;
-        border-radius: 0.375rem;
-        color: #f5f5f5;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: clamp(0.75rem, 2.5vmin, 1rem);
-        min-height: calc(var(--base-cell-size) * 1.5);
-        min-width: calc(var(--base-cell-size) * 4);
-      }
-
-      button:hover {
-        background: #ffd479;
-        color: #1f1f1f;
-      }
-
-      button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .table-controls {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        max-width: 1000px;
-        margin-bottom: calc(var(--base-padding) * 2);
-        flex-wrap: wrap;
-        gap: calc(var(--base-padding) * 1.5);
-        min-height: calc(var(--base-cell-size) * 2);
-      }
-
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 1000px;
-        background: #333333;
-        margin-top: 0;
-        position: relative;
-        font-size: clamp(0.75rem, 2.5vmin, 1rem);
-        table-layout: fixed;
-        height: auto;
-      }
-
-      th,
-      td {
-        border: 1px solid #444;
-        padding: calc(var(--base-padding) * 0.8);
-        text-align: center;
-        min-width: var(--base-cell-size);
-        min-height: var(--base-cell-size);
-        height: var(--base-cell-size);
-        transition: all 0.2s ease;
-        position: relative;
-        word-break: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.2;
-      }
-
-      th {
-        background: #8b5e3c;
-        color: #f5f5f5;
-        font-size: clamp(0.8rem, 2.8vmin, 1.1rem);
-        padding: calc(var(--base-padding) * 1);
-        min-height: calc(var(--base-cell-size) * 1.3);
-      }
-
-      td:first-child {
-        min-width: calc(var(--base-cell-size) * 3);
-        max-width: calc(var(--base-cell-size) * 3);
-        font-size: clamp(0.7rem, 2.2vmin, 0.9rem);
-        text-align: left;
-        padding-left: calc(var(--base-padding) * 1.2);
-      }
-
-      td.clickable {
-        cursor: pointer;
-      }
-
-      td.clickable:hover {
-        background: #555555;
-      }
-
-      td.crossed {
-        text-decoration: line-through;
-        color: #d94f4f;
-        font-weight: normal;
-      }
-
-      td.highlighted {
-        color: #1da756;
-        font-weight: bold;
-      }
-
-      td .eye-icon {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
-        color: #ffd369;
-        pointer-events: none;
-      }
-
-      td .numbers {
-        position: absolute;
-        bottom: 2px;
-        right: 2px;
-        display: flex;
-        gap: 1px;
-        font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
-        color: #ffd479;
-        pointer-events: none;
-      }
-
-      .marker {
-        font-size: clamp(0.8rem, 2.8vmin, 1.1rem);
-        display: inline-block;
-        line-height: 1;
-      }
-
-      #contextMenu {
-        position: absolute;
-        display: none;
-        background: #333333;
-        border: 1px solid #ffd479;
-        border-radius: 0.375rem;
-        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
-        z-index: 1000;
-        padding: calc(var(--base-padding) * 0.8);
-        gap: calc(var(--base-padding) * 0.8);
-        white-space: nowrap;
-        flex-wrap: wrap;
-        max-width: calc(var(--base-cell-size) * 12);
-        min-height: calc(var(--base-cell-size) * 2);
-      }
-
-      #contextMenu div {
-        padding: calc(var(--base-padding) * 0.8) calc(var(--base-padding) * 1.2);
-        cursor: pointer;
-        text-align: center;
-        font-size: clamp(0.9rem, 3vmin, 1.2rem);
-        color: #ffd479;
-        background: #333333;
-        border-radius: 0.25rem;
-        transition: all 0.2s ease;
-        flex: 1;
-        min-width: calc(var(--base-cell-size) * 1.8);
-        min-height: calc(var(--base-cell-size) * 1.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      #contextMenu div:hover {
-        background: #ffd479;
-        color: #1f1f1f;
-      }
-
-      footer {
-        text-align: center;
-        margin-top: calc(var(--base-padding) * 3);
-        font-size: clamp(0.7rem, 2vmin, 0.85rem);
-        color: #ffd369;
-        padding: 0 calc(var(--base-padding) * 1.5);
-        line-height: 1.4;
-      }
-
-      footer a {
-        color: #ffd369;
-        text-decoration: underline;
-      }
-      /* Make increase/decrease player buttons smaller */
-      #increasePlayers,
-      #decreasePlayers {
-        padding: 4px 8px !important;
-        font-size: 12px !important;
-        min-height: unset !important;
-        min-width: unset !important;
-      }
-      #undoBtn,
-      #redoBtn {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        font-size: 0; /* hide text spacing */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-      }
-
-      #undoBtn i,
-      #redoBtn i {
-        font-size: 18px;
-        line-height: 1;
-      }
-
-      @media (max-width: 768px) {
         :root {
-          --base-font-size: 14px;
-          --base-padding: 0.4rem;
-          --base-cell-size: 4vmin;
+          --vh: 1vh;
+          --base-font-size: 16px;
+          --base-padding: 0.5rem;
+          --base-cell-size: 3.5vmin;
         }
 
         body {
-          padding: calc(var(--base-padding) * 1.2);
+          font-family: Arial;
+          background: #1f1f1f;
+          color: #f5f5f5;
+          padding: calc(var(--base-padding) * 1.5);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          overflow-x: auto;
+          min-height: 100vh;
+          min-height: calc(var(--vh, 1vh) * 100);
+          box-sizing: border-box;
+          font-size: var(--base-font-size);
+        }
+
+        h1 {
+          color: #ffd479;
+          text-align: center;
+          margin-bottom: calc(var(--base-padding) * 1.5);
+          font-size: clamp(1.2rem, 4vmin, 1.8rem);
+          line-height: 1.2;
+        }
+
+        button {
+          padding: calc(var(--base-padding) * 1.2) calc(var(--base-padding) * 2);
+          background: #8b5e3c;
+          border: none;
+          border-radius: 0.375rem;
+          color: #f5f5f5;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: clamp(0.75rem, 2.5vmin, 1rem);
+          min-height: calc(var(--base-cell-size) * 1.5);
+          min-width: calc(var(--base-cell-size) * 4);
+        }
+
+        button:hover {
+          background: #ffd479;
+          color: #1f1f1f;
+        }
+
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         .table-controls {
-          flex-direction: column;
-          align-items: center;
-          gap: calc(var(--base-padding) * 1.2);
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          max-width: 1000px;
+          margin-bottom: calc(var(--base-padding) * 2);
+          flex-wrap: wrap;
+          gap: calc(var(--base-padding) * 1.5);
+          min-height: calc(var(--base-cell-size) * 2);
+        }
+
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          max-width: 1000px;
+          background: #333333;
+          margin-top: 0;
+          position: relative;
+          font-size: clamp(0.75rem, 2.5vmin, 1rem);
+          table-layout: fixed;
+          height: auto;
         }
 
         th,
         td {
-          padding: calc(var(--base-padding) * 0.6);
-          min-height: calc(var(--base-cell-size) * 1.1);
-          height: calc(var(--base-cell-size) * 1.1);
+          border: 1px solid #444;
+          padding: calc(var(--base-padding) * 0.8);
+          text-align: center;
+          min-width: var(--base-cell-size);
+          min-height: var(--base-cell-size);
+          height: var(--base-cell-size);
+          transition: all 0.2s ease;
+          position: relative;
+          word-break: break-word;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 1.2;
+        }
+
+        th {
+          background: #8b5e3c;
+          color: #f5f5f5;
+          font-size: clamp(0.8rem, 2.8vmin, 1.1rem);
+          padding: calc(var(--base-padding) * 1);
+          min-height: calc(var(--base-cell-size) * 1.3);
         }
 
         td:first-child {
-          min-width: calc(var(--base-cell-size) * 2.8);
-          max-width: calc(var(--base-cell-size) * 2.8);
-          padding-left: calc(var(--base-padding) * 0.8);
+          min-width: calc(var(--base-cell-size) * 3);
+          max-width: calc(var(--base-cell-size) * 3);
+          font-size: clamp(0.7rem, 2.2vmin, 0.9rem);
+          text-align: left;
+          padding-left: calc(var(--base-padding) * 1.2);
+        }
+
+        td.clickable {
+          cursor: pointer;
+        }
+
+        td.clickable:hover {
+          background: #555555;
+        }
+
+        td.crossed {
+          text-decoration: line-through;
+          color: #d94f4f;
+          font-weight: normal;
+        }
+
+        td.highlighted {
+          color: #1da756;
+          font-weight: bold;
+        }
+
+        td .eye-icon {
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
+          color: #ffd369;
+          pointer-events: none;
+        }
+
+        td .numbers {
+          position: absolute;
+          bottom: 2px;
+          right: 2px;
+          display: flex;
+          gap: 1px;
+          font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
+          color: #ffd479;
+          pointer-events: none;
+        }
+
+        .marker {
+          font-size: clamp(0.8rem, 2.8vmin, 1.1rem);
+          display: inline-block;
+          line-height: 1;
         }
 
         #contextMenu {
-          max-width: calc(var(--base-cell-size) * 10);
-        }
-      }
-
-      @media (max-width: 480px) {
-        :root {
-          --base-font-size: 12px;
-          --base-padding: 0.3rem;
-          --base-cell-size: 4.5vmin;
-        }
-
-        body {
-          padding: var(--base-padding);
-        }
-
-        th,
-        td {
-          padding: calc(var(--base-padding) * 0.5);
-          min-height: calc(var(--base-cell-size) * 1.05);
-          height: calc(var(--base-cell-size) * 1.05);
-        }
-
-        td:first-child {
-          min-width: calc(var(--base-cell-size) * 2.5);
-          max-width: calc(var(--base-cell-size) * 2.5);
-          padding-left: calc(var(--base-padding) * 0.6);
-        }
-
-        #contextMenu {
-          max-width: calc(var(--base-cell-size) * 8);
+          position: absolute;
+          display: none;
+          background: #333333;
+          border: 1px solid #ffd479;
+          border-radius: 0.375rem;
+          box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+          z-index: 1000;
+          padding: calc(var(--base-padding) * 0.8);
+          gap: calc(var(--base-padding) * 0.8);
+          white-space: nowrap;
+          flex-wrap: wrap;
+          max-width: calc(var(--base-cell-size) * 12);
+          min-height: calc(var(--base-cell-size) * 2);
         }
 
         #contextMenu div {
-          padding: calc(var(--base-padding) * 0.6)
-            calc(var(--base-padding) * 0.8);
-          min-width: calc(var(--base-cell-size) * 1.5);
-          min-height: calc(var(--base-cell-size) * 1.3);
+          padding: calc(var(--base-padding) * 0.8) calc(var(--base-padding) * 1.2);
+          cursor: pointer;
+          text-align: center;
+          font-size: clamp(0.9rem, 3vmin, 1.2rem);
+          color: #ffd479;
+          background: #333333;
+          border-radius: 0.25rem;
+          transition: all 0.2s ease;
+          flex: 1;
+          min-width: calc(var(--base-cell-size) * 1.8);
+          min-height: calc(var(--base-cell-size) * 1.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
-      }
 
-      @media (max-height: 600px) {
-        :root {
-          --base-cell-size: 3vmin;
-        }
-
-        h1 {
-          margin-bottom: calc(var(--base-padding) * 0.8);
-          font-size: clamp(1rem, 3.5vmin, 1.5rem);
-        }
-
-        .table-controls {
-          margin-bottom: calc(var(--base-padding) * 1);
+        #contextMenu div:hover {
+          background: #ffd479;
+          color: #1f1f1f;
         }
 
         footer {
-          margin-top: calc(var(--base-padding) * 1.5);
-        }
-      }
-
-      @media (max-height: 400px) {
-        :root {
-          --base-cell-size: 2.5vmin;
-        }
-
-        body {
-          padding: calc(var(--base-padding) * 0.8);
+          text-align: center;
+          margin-top: calc(var(--base-padding) * 3);
+          font-size: clamp(0.7rem, 2vmin, 0.85rem);
+          color: #ffd369;
+          padding: 0 calc(var(--base-padding) * 1.5);
+          line-height: 1.4;
         }
 
-        h1 {
-          font-size: clamp(0.9rem, 3vmin, 1.2rem);
-          margin-bottom: calc(var(--base-padding) * 0.5);
+        footer a {
+          color: #ffd369;
+          text-decoration: underline;
         }
-      }
+        /* Make increase/decrease player buttons smaller */
+        #increasePlayers,
+        #decreasePlayers {
+          padding: 4px 8px !important;
+          font-size: 12px !important;
+          min-height: unset !important;
+          min-width: unset !important;
+        }
+        #undoBtn,
+        #redoBtn {
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          font-size: 0; /* hide text spacing */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 6px;
+        }
+
+        #undoBtn i,
+        #redoBtn i {
+          font-size: 18px;
+          line-height: 1;
+        }
+
+        @media (max-width: 768px) {
+          :root {
+            --base-font-size: 14px;
+            --base-padding: 0.4rem;
+            --base-cell-size: 4vmin;
+          }
+
+          body {
+            padding: calc(var(--base-padding) * 1.2);
+          }
+
+          .table-controls {
+            flex-direction: column;
+            align-items: center;
+            gap: calc(var(--base-padding) * 1.2);
+          }
+
+          th,
+          td {
+            padding: calc(var(--base-padding) * 0.6);
+            min-height: calc(var(--base-cell-size) * 1.1);
+            height: calc(var(--base-cell-size) * 1.1);
+          }
+
+          td:first-child {
+            min-width: calc(var(--base-cell-size) * 2.8);
+            max-width: calc(var(--base-cell-size) * 2.8);
+            padding-left: calc(var(--base-padding) * 0.8);
+          }
+
+          #contextMenu {
+            max-width: calc(var(--base-cell-size) * 10);
+          }
+        }
+
+        @media (max-width: 480px) {
+          :root {
+            --base-font-size: 12px;
+            --base-padding: 0.3rem;
+            --base-cell-size: 4.5vmin;
+          }
+
+          body {
+            padding: var(--base-padding);
+          }
+
+          th,
+          td {
+            padding: calc(var(--base-padding) * 0.5);
+            min-height: calc(var(--base-cell-size) * 1.05);
+            height: calc(var(--base-cell-size) * 1.05);
+          }
+
+          td:first-child {
+            min-width: calc(var(--base-cell-size) * 2.5);
+            max-width: calc(var(--base-cell-size) * 2.5);
+            padding-left: calc(var(--base-padding) * 0.6);
+          }
+
+          #contextMenu {
+            max-width: calc(var(--base-cell-size) * 8);
+          }
+
+          #contextMenu div {
+            padding: calc(var(--base-padding) * 0.6)
+              calc(var(--base-padding) * 0.8);
+            min-width: calc(var(--base-cell-size) * 1.5);
+            min-height: calc(var(--base-cell-size) * 1.3);
+          }
+        }
+
+        @media (max-height: 600px) {
+          :root {
+            --base-cell-size: 3vmin;
+          }
+
+          h1 {
+            margin-bottom: calc(var(--base-padding) * 0.8);
+            font-size: clamp(1rem, 3.5vmin, 1.5rem);
+          }
+
+          .table-controls {
+            margin-bottom: calc(var(--base-padding) * 1);
+          }
+
+          footer {
+            margin-top: calc(var(--base-padding) * 1.5);
+          }
+        }
+
+        @media (max-height: 400px) {
+          :root {
+            --base-cell-size: 2.5vmin;
+          }
+
+          body {
+            padding: calc(var(--base-padding) * 0.8);
+          }
+
+          h1 {
+            font-size: clamp(0.9rem, 3vmin, 1.2rem);
+            margin-bottom: calc(var(--base-padding) * 0.5);
+          }
+        }
     </style>
-  </head>
-  <body>
-    <h1>Cluedo Clue Sheet</h1>
+</head>
+<body>
+<h1>Cluedo Clue Sheet</h1>
 
-    <div class="table-controls">
-      <div id="historyControls" style="display: flex; gap: 4px">
+<div class="table-controls">
+    <div id="historyControls" style="display: flex; gap: 4px">
         <button id="undoBtn" title="Undo">
-          <i class="ri-arrow-go-back-line"></i>
+            <i class="ri-arrow-go-back-line"></i>
         </button>
         <button id="redoBtn" title="Redo">
-          <i class="ri-arrow-go-forward-line"></i>
+            <i class="ri-arrow-go-forward-line"></i>
         </button>
-      </div>
+    </div>
 
-      <div
-        id="playerControls"
-        style="display: flex; align-items: center; gap: 6px"
-      >
+    <div
+            id="playerControls"
+            style="display: flex; align-items: center; gap: 6px"
+    >
         <span id="playersLabel" style="font-weight: bold"
-          >Number of players:</span
+        >Number of players:</span
         >
         <button id="decreasePlayers">-</button>
         <div
-          id="numPlayersDisplay"
-          style="font-weight: bold; min-width: 20px; text-align: center"
+                id="numPlayersDisplay"
+                style="font-weight: bold; min-width: 20px; text-align: center"
         >
-          3
+            3
         </div>
         <button id="increasePlayers">+</button>
-      </div>
     </div>
+</div>
 
-    <table id="sheet"></table>
-    <div id="contextMenu"></div>
+<table id="sheet"></table>
+<div id="contextMenu"></div>
 
-    <script>
-      function setVhUnit() {
-        const vh = window.innerHeight * 0.01
-        document.documentElement.style.setProperty('--vh', `${vh}px`)
-      }
+<script src="index.js"></script>
 
-      setVhUnit()
-      window.addEventListener('resize', setVhUnit)
-      window.addEventListener('orientationchange', setVhUnit)
-
-      const categories = [
-        {
-          title: 'Suspects',
-          items: ['Green', 'Mustard', 'Orchid', 'Peacock', 'Plum', 'Scarlett'],
-        },
-        {
-          title: 'Weapons',
-          items: [
-            'Candlestick',
-            'Knife',
-            'Lead Pipe',
-            'Revolver',
-            'Rope',
-            'Wrench',
-          ],
-        },
-        {
-          title: 'Rooms',
-          items: [
-            'Ballroom',
-            'Billiard Room',
-            'Conservatory',
-            'Dining Room',
-            'Hall',
-            'Kitchen',
-            'Library',
-            'Lounge',
-            'Study',
-          ],
-        },
-      ]
-
-      let numPlayers = 3,
-        maxPlayers = 6,
-        minPlayers = 3
-      const sheet = document.getElementById('sheet')
-      const numPlayersDisplay = document.getElementById('numPlayersDisplay')
-      const contextMenu = document.getElementById('contextMenu')
-      const menuOptions = [
-        '❌',
-        '✅',
-        '❓',
-        '1️⃣',
-        '2️⃣',
-        '3️⃣',
-        '4️⃣',
-        '5️⃣',
-        '👁️',
-        '🗑️',
-      ]
-      let currentCell = null
-      let history = [],
-        historyIndex = -1
-
-      const numberIcons = {
-        '1️⃣': '<i class="ri-number-1"></i>',
-        '2️⃣': '<i class="ri-number-2"></i>',
-        '3️⃣': '<i class="ri-number-3"></i>',
-        '4️⃣': '<i class="ri-number-4"></i>',
-        '5️⃣': '<i class="ri-number-5"></i>',
-      }
-
-      menuOptions.forEach((option) => {
-        const div = document.createElement('div')
-        div.textContent = option
-        div.onclick = () => {
-          if (!currentCell) return
-
-          let marker = currentCell.querySelector('.marker')
-          if (!marker) {
-            marker = document.createElement('span')
-            marker.classList.add('marker')
-            currentCell.appendChild(marker)
-          }
-
-          const existingIcon = currentCell.querySelector('.eye-icon')
-
-          if (option === '🗑️') {
-            marker.textContent = ''
-            const numbers = currentCell.querySelector('.numbers')
-            if (numbers) numbers.remove()
-            if (existingIcon) existingIcon.remove()
-          } else if (option === '👁️') {
-            if (existingIcon) existingIcon.remove()
-            else {
-              const icon = document.createElement('i')
-              icon.className = 'ri-eye-line eye-icon'
-              currentCell.appendChild(icon)
-            }
-          } else if (['❌', '✅', '❓'].includes(option)) {
-            marker.textContent = option
-          } else if (Object.keys(numberIcons).includes(option)) {
-            // numbers: toggle inside .numbers container
-            let numbers = currentCell.querySelector('.numbers')
-            if (!numbers) {
-              numbers = document.createElement('div')
-              numbers.classList.add('numbers')
-              currentCell.appendChild(numbers)
-            }
-            // toggle specific number icon HTML
-            const iconHtml = numberIcons[option]
-            if (numbers.innerHTML.includes(iconHtml)) {
-              numbers.innerHTML = numbers.innerHTML.replace(iconHtml, '')
-            } else {
-              numbers.innerHTML += iconHtml
-            }
-          }
-
-          contextMenu.style.display = 'none'
-          updateRowLogic(currentCell.parentElement)
-          updateKnownCounters()
-          saveState()
-        }
-        contextMenu.appendChild(div)
-      })
-
-      // Show context menu near clicked cell
-      sheet.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('clickable')) {
-          contextMenu.style.display = 'none'
-          return
-        }
-        currentCell = e.target
-        const rect = e.target.getBoundingClientRect()
-        const tableRect = sheet.getBoundingClientRect()
-        contextMenu.style.display = 'flex'
-        contextMenu.style.flexWrap = 'wrap'
-        contextMenu.style.width = 'auto'
-
-        let left = rect.left + window.scrollX
-        let top = rect.bottom + window.scrollY
-
-        // ensure it doesn't go off the right/bottom of table viewport
-        if (left + contextMenu.offsetWidth > tableRect.right + window.scrollX)
-          left = Math.max(
-            rect.right + window.scrollX - contextMenu.offsetWidth,
-            tableRect.right + window.scrollX - contextMenu.offsetWidth - 4
-          )
-        if (top + contextMenu.offsetHeight > tableRect.bottom + window.scrollY)
-          top = rect.top + window.scrollY - contextMenu.offsetHeight
-
-        if (left < tableRect.left + window.scrollX)
-          left = tableRect.left + window.scrollX + 4
-        if (top < tableRect.top + window.scrollY)
-          top = tableRect.top + window.scrollY + 4
-
-        contextMenu.style.left = left + 'px'
-        contextMenu.style.top = top + 'px'
-      })
-
-      document.addEventListener('click', (e) => {
-        if (
-          !contextMenu.contains(e.target) &&
-          !e.target.classList.contains('clickable')
-        )
-          contextMenu.style.display = 'none'
-      })
-
-      // build table
-      function rebuildTable(saveHistory = true) {
-        sheet.innerHTML = ''
-        // header row
-        const header = document.createElement('tr')
-        header.innerHTML =
-          `<th>Card</th>` +
-          Array.from(
-            { length: numPlayers },
-            (_, i) =>
-              `<th contenteditable="true" class="editable">P${i + 1}</th>`
-          ).join('')
-        sheet.appendChild(header)
-
-        // known row
-        const knownRow = document.createElement('tr')
-        knownRow.id = 'knownCardsRow'
-        knownRow.innerHTML =
-          `<td>Known</td>` +
-          Array.from({ length: numPlayers }, () => `<td>0</td>`).join('')
-        sheet.appendChild(knownRow)
-
-        // categories
-        categories.forEach((cat) => {
-          const catRow = document.createElement('tr')
-          catRow.innerHTML = `<th colspan="${numPlayers + 1}">${cat.title}</th>`
-          sheet.appendChild(catRow)
-
-          cat.items.forEach((item) => {
-            const row = document.createElement('tr')
-            const nameCell = document.createElement('td')
-            nameCell.textContent = item
-            nameCell.dataset.clickState = '0'
-            nameCell.style.cursor = 'pointer'
-            nameCell.addEventListener('click', () => {
-              // cycle name states
-              let state = parseInt(nameCell.dataset.clickState || '0', 10)
-              nameCell.classList.remove('crossed', 'highlighted')
-              nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
-              state = (state + 1) % 3
-              nameCell.dataset.clickState = String(state)
-              if (state === 1) nameCell.classList.add('crossed')
-              else if (state === 2) {
-                nameCell.classList.add('highlighted')
-                nameCell.textContent = '➡️ ' + item
-              }
-              updateRowLogic(row)
-              updateKnownCounters()
-              saveState()
-            })
-            row.appendChild(nameCell)
-
-            for (let i = 0; i < numPlayers; i++) {
-              const td = document.createElement('td')
-              td.className = 'clickable'
-              row.appendChild(td)
-            }
-
-            sheet.appendChild(row)
-          })
-        })
-
-        if (saveHistory) saveState()
-      }
-
-      // Main row logic using .marker / .eye-icon / .numbers elements
-      function updateRowLogic(row) {
-        const cells = Array.from(row.querySelectorAll('td.clickable'))
-        const nameCell = row.querySelector('td:first-child')
-
-        // detect any ✅ markers
-        const hasCheck = cells.some((c) => {
-          const m = c.querySelector('.marker')
-          return m && m.textContent === '✅'
-        })
-
-        if (hasCheck) {
-          // auto-fill ❌ in other cells but preserve eye & numbers
-          cells.forEach((c) => {
-            let m = c.querySelector('.marker')
-            if (!m) {
-              m = document.createElement('span')
-              m.classList.add('marker')
-              c.appendChild(m)
-            }
-            if (m.textContent !== '✅') m.textContent = '❌'
-          })
-          nameCell.classList.add('crossed')
-          nameCell.classList.remove('highlighted')
-          nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
-          return
-        }
-
-        // count ❌ markers
-        const xCount = cells.filter((c) => {
-          const m = c.querySelector('.marker')
-          return m && m.textContent === '❌'
-        }).length
-
-        if (xCount >= 3) {
-          nameCell.classList.add('highlighted')
-          nameCell.classList.remove('crossed')
-          if (!nameCell.textContent.startsWith('➡️ '))
-            nameCell.textContent = '➡️ ' + nameCell.textContent
-        } else {
-          // respect manual name state if set to crossed/highlight by clicks; otherwise reset
-          if (nameCell.dataset.clickState === '0') {
-            nameCell.classList.remove('crossed', 'highlighted')
-            nameCell.textContent = nameCell.textContent.replace(/^➡️ /, '')
-          } else {
-            // manual state will be visually handled by the click handler already
-            if (nameCell.dataset.clickState === '1') {
-              nameCell.classList.add('crossed')
-              nameCell.classList.remove('highlighted')
-            } else if (nameCell.dataset.clickState === '2') {
-              nameCell.classList.add('highlighted')
-              nameCell.classList.remove('crossed')
-              if (!nameCell.textContent.startsWith('➡️ '))
-                nameCell.textContent = '➡️ ' + nameCell.textContent
-            }
-          }
-        }
-      }
-
-      function updateKnownCounters() {
-        const knownRow = document.getElementById('knownCardsRow')
-        for (let i = 0; i < numPlayers; i++) {
-          const colIndex = i + 1
-          let count = 0
-          Array.from(sheet.querySelectorAll('tr')).forEach((row) => {
-            const cell = row.children[colIndex]
-            const m = cell ? cell.querySelector('.marker') : null
-            if (m && m.textContent === '✅') count++
-          })
-          knownRow.children[colIndex].textContent = count
-        }
-      }
-
-      // Save snapshot of every td (text + marker + numbers + eye + clickState)
-      function saveState() {
-        const tds = Array.from(sheet.querySelectorAll('td'))
-        const snapshot = tds.map((td) => {
-          return {
-            text: td.textContent || '',
-            marker: td.querySelector('.marker')
-              ? td.querySelector('.marker').textContent
-              : '',
-            numbers: td.querySelector('.numbers')
-              ? td.querySelector('.numbers').innerHTML
-              : '',
-            hasEye: !!td.querySelector('.eye-icon'),
-            clickState: td.dataset.clickState || '0',
-          }
-        })
-        history = history.slice(0, historyIndex + 1)
-        history.push(snapshot)
-        historyIndex++
-        updateButtons()
-      }
-
-      // Restore snapshot and recompute visuals
-      function restoreState(index) {
-        if (index < 0 || index >= history.length) return
-        const snapshot = history[index]
-        const tds = Array.from(sheet.querySelectorAll('td'))
-        for (let i = 0; i < tds.length; i++) {
-          const td = tds[i]
-          const item = snapshot[i] || {
-            text: '',
-            marker: '',
-            numbers: '',
-            hasEye: false,
-            clickState: '0',
-          }
-          // clear
-          td.innerHTML = ''
-          // restore dataset
-          td.dataset.clickState = item.clickState || '0'
-          // for name cells and known cells (non-clickable), restore text content
-          if (!td.classList.contains('clickable')) {
-            td.textContent = item.text || ''
-          } else {
-            // clickable cells: reconstruct marker, eye, numbers (don't put plain text)
-            if (item.marker) {
-              const marker = document.createElement('span')
-              marker.classList.add('marker')
-              marker.textContent = item.marker
-              td.appendChild(marker)
-            }
-            if (item.hasEye) {
-              const icon = document.createElement('i')
-              icon.className = 'ri-eye-line eye-icon'
-              td.appendChild(icon)
-            }
-            if (item.numbers) {
-              const numbers = document.createElement('div')
-              numbers.classList.add('numbers')
-              numbers.innerHTML = item.numbers
-              td.appendChild(numbers)
-            }
-          }
-        }
-        historyIndex = index
-        // recompute rows and counters to reflect restored markers
-        recomputeAllRows()
-        updateKnownCounters()
-        updateButtons()
-      }
-
-      function recomputeAllRows() {
-        const rows = Array.from(sheet.querySelectorAll('tr'))
-        rows.forEach((row) => {
-          // skip header row and known row
-          if (row.id === 'knownCardsRow') return
-          // only rows that actually have clickable tds (card rows)
-          if (row.querySelectorAll('td.clickable').length > 0)
-            updateRowLogic(row)
-        })
-      }
-
-      function updateButtons() {
-        document.getElementById('undoBtn').disabled = historyIndex <= 0
-        document.getElementById('redoBtn').disabled =
-          historyIndex >= history.length - 1
-      }
-
-      // wire events
-      document.getElementById('undoBtn').addEventListener('click', () => {
-        if (historyIndex > 0) restoreState(historyIndex - 1)
-      })
-      document.getElementById('redoBtn').addEventListener('click', () => {
-        if (historyIndex < history.length - 1) restoreState(historyIndex + 1)
-      })
-      document
-        .getElementById('increasePlayers')
-        .addEventListener('click', () => {
-          if (numPlayers < maxPlayers) {
-            numPlayers++
-            numPlayersDisplay.textContent = numPlayers
-            rebuildTable(false)
-          }
-        })
-      document
-        .getElementById('decreasePlayers')
-        .addEventListener('click', () => {
-          if (numPlayers > minPlayers) {
-            numPlayers--
-            numPlayersDisplay.textContent = numPlayers
-            rebuildTable(false)
-          }
-        })
-
-      // initial build
-      rebuildTable()
-
-      window.addEventListener('resize', function () {
-        setVhUnit()
-        if (contextMenu.style.display === 'flex' && currentCell) {
-          const rect = currentCell.getBoundingClientRect()
-          const tableRect = sheet.getBoundingClientRect()
-
-          let left = rect.left + window.scrollX
-          let top = rect.bottom + window.scrollY
-
-          if (left + contextMenu.offsetWidth > tableRect.right + window.scrollX)
-            left = Math.max(
-              rect.right + window.scrollX - contextMenu.offsetWidth,
-              tableRect.right + window.scrollX - contextMenu.offsetWidth - 4
-            )
-          if (
-            top + contextMenu.offsetHeight >
-            tableRect.bottom + window.scrollY
-          )
-            top = rect.top + window.scrollY - contextMenu.offsetHeight
-
-          if (left < tableRect.left + window.scrollX)
-            left = tableRect.left + window.scrollX + 4
-          if (top < tableRect.top + window.scrollY)
-            top = tableRect.top + window.scrollY + 4
-
-          contextMenu.style.left = left + 'px'
-          contextMenu.style.top = top + 'px'
-        }
-      })
-    </script>
-
-    <footer>
-      <a
-        href="https://github.com/MasterBatess/cluedo-clue-sheet"
-        target="_blank"
-        >Source code</a
-      >
-      | Icons by <a href="https://remixicon.com/" target="_blank">Remix Icon</a>
-    </footer>
-  </body>
+<footer>
+    <a href="https://github.com/MasterBatess/cluedo-clue-sheet"
+            target="_blank">Source code</a>
+    | Icons by <a href="https://remixicon.com/" target="_blank">Remix Icon</a>
+    | Forked by <a href="https://github.com/FINITO-12" target="_blank"></a>
+</footer>
+</body>
 </html>
