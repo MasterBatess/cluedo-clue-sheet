@@ -679,7 +679,7 @@
           return m && m.textContent === '❌'
         }).length
 
-        if (xCount >= 3) {
+        if (xCount === cells.length) {
           nameCell.classList.add('highlighted')
           nameCell.classList.remove('crossed')
           if (!nameCell.textContent.startsWith('➡️ '))
