@@ -583,12 +583,13 @@
       // build table
       function rebuildTable(saveHistory = true) {
         sheet.innerHTML = ''
+
         // header row
         const header = document.createElement('tr')
         header.innerHTML =
           `<th>Card</th>` +
           Array.from(
-            { length: numPlayers },
+            { length: numPlayers - 1 }, // show everyone except yourself
             (_, i) =>
               `<th contenteditable="true" class="editable">P${i + 1}</th>`
           ).join('')
@@ -599,13 +600,13 @@
         knownRow.id = 'knownCardsRow'
         knownRow.innerHTML =
           `<td>Known</td>` +
-          Array.from({ length: numPlayers }, () => `<td>0</td>`).join('')
+          Array.from({ length: numPlayers - 1 }, () => `<td>0</td>`).join('')
         sheet.appendChild(knownRow)
 
         // categories
         categories.forEach((cat) => {
           const catRow = document.createElement('tr')
-          catRow.innerHTML = `<th colspan="${numPlayers + 1}">${cat.title}</th>`
+          catRow.innerHTML = `<th colspan="${numPlayers}">${cat.title}</th>`
           sheet.appendChild(catRow)
 
           cat.items.forEach((item) => {
@@ -632,7 +633,7 @@
             })
             row.appendChild(nameCell)
 
-            for (let i = 0; i < numPlayers; i++) {
+            for (let i = 0; i < numPlayers - 1; i++) {
               const td = document.createElement('td')
               td.className = 'clickable'
               row.appendChild(td)
