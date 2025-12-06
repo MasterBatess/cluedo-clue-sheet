@@ -512,7 +512,17 @@
               currentCell.appendChild(icon)
             }
           } else if (['❌', '✅', '❓'].includes(option)) {
-            marker.textContent = option
+            marker.dataset.value = option
+            marker.innerHTML = ''
+
+            if (option === '❌') {
+              marker.innerHTML = '<span style="color:#d94f4f;">❌</span>' // red emoji
+            } else if (option === '✅') {
+              marker.innerHTML = '<span style="color:#1da756;">✅</span>' // green emoji
+            } else if (option === '❓') {
+              marker.innerHTML =
+                '<i class="ri-question-mark" style="color:#ffd479;font-size:1.1em;opacity:0.7;"></i>' // golden icon
+            }
           } else if (Object.keys(numberIcons).includes(option)) {
             // numbers: toggle inside .numbers container
             let numbers = currentCell.querySelector('.numbers')
@@ -534,6 +544,7 @@
           updateRowLogic(currentCell.parentElement)
           updateKnownCounters()
           saveState()
+          updateButtons()
         }
         contextMenu.appendChild(div)
       })
@@ -654,7 +665,7 @@
         // detect any ✅ markers
         const hasCheck = cells.some((c) => {
           const m = c.querySelector('.marker')
-          return m && m.textContent === '✅'
+          return m && (m.dataset.value === '✅' || m.textContent === '✅')
         })
 
         if (hasCheck) {
@@ -677,7 +688,7 @@
         // count ❌ markers
         const xCount = cells.filter((c) => {
           const m = c.querySelector('.marker')
-          return m && m.textContent === '❌'
+          return m && (m.dataset.value === '❌' || m.textContent === '❌')
         }).length
 
         if (xCount === cells.length) {
@@ -707,84 +718,66 @@
 
       function updateKnownCounters() {
         const knownRow = document.getElementById('knownCardsRow')
-        for (let i = 0; i < numPlayers; i++) {
+        if (!knownRow) return
+
+        // loop through actual player columns (skip first "Card" column)
+        const playerCols = knownRow.children.length - 1
+        for (let i = 0; i < playerCols; i++) {
           const colIndex = i + 1
           let count = 0
+
           Array.from(sheet.querySelectorAll('tr')).forEach((row) => {
+            if (!row.children[colIndex]) return
             const cell = row.children[colIndex]
-            const m = cell ? cell.querySelector('.marker') : null
-            if (m && m.textContent === '✅') count++
+            const marker = cell.querySelector('.marker')
+            if (marker && marker.textContent === '✅') count++
           })
-          knownRow.children[colIndex].textContent = count
+
+          if (knownRow.children[colIndex]) {
+            knownRow.children[colIndex].textContent = count
+          }
         }
       }
 
       // Save snapshot of every td (text + marker + numbers + eye + clickState)
       function saveState() {
         const tds = Array.from(sheet.querySelectorAll('td'))
-        const snapshot = tds.map((td) => {
-          return {
-            text: td.textContent || '',
-            marker: td.querySelector('.marker')
-              ? td.querySelector('.marker').textContent
-              : '',
-            numbers: td.querySelector('.numbers')
-              ? td.querySelector('.numbers').innerHTML
-              : '',
-            hasEye: !!td.querySelector('.eye-icon'),
-            clickState: td.dataset.clickState || '0',
-          }
-        })
+        const snapshot = tds.map((td) => ({
+          html: td.innerHTML,
+          clickState: td.dataset.clickState || '0',
+        }))
+
+        // Trim forward history if we edited after undo
         history = history.slice(0, historyIndex + 1)
-        history.push(snapshot)
-        historyIndex++
-        updateButtons()
+
+        // Only push if different from the previous snapshot
+        const last = history[history.length - 1]
+        const same =
+          last &&
+          last.length === snapshot.length &&
+          last.every((v, i) => v.html === snapshot[i].html)
+
+        if (!same) {
+          history.push(snapshot)
+          historyIndex = history.length - 1
+          updateButtons()
+        }
       }
 
-      // Restore snapshot and recompute visuals
       function restoreState(index) {
         if (index < 0 || index >= history.length) return
+
         const snapshot = history[index]
         const tds = Array.from(sheet.querySelectorAll('td'))
+
         for (let i = 0; i < tds.length; i++) {
           const td = tds[i]
-          const item = snapshot[i] || {
-            text: '',
-            marker: '',
-            numbers: '',
-            hasEye: false,
-            clickState: '0',
-          }
-          // clear
-          td.innerHTML = ''
-          // restore dataset
+          const item = snapshot[i]
+          td.innerHTML = item.html
           td.dataset.clickState = item.clickState || '0'
-          // for name cells and known cells (non-clickable), restore text content
-          if (!td.classList.contains('clickable')) {
-            td.textContent = item.text || ''
-          } else {
-            // clickable cells: reconstruct marker, eye, numbers (don't put plain text)
-            if (item.marker) {
-              const marker = document.createElement('span')
-              marker.classList.add('marker')
-              marker.textContent = item.marker
-              td.appendChild(marker)
-            }
-            if (item.hasEye) {
-              const icon = document.createElement('i')
-              icon.className = 'ri-eye-line eye-icon'
-              td.appendChild(icon)
-            }
-            if (item.numbers) {
-              const numbers = document.createElement('div')
-              numbers.classList.add('numbers')
-              numbers.innerHTML = item.numbers
-              td.appendChild(numbers)
-            }
-          }
         }
+
         historyIndex = index
-        // recompute rows and counters to reflect restored markers
         recomputeAllRows()
         updateKnownCounters()
         updateButtons()
@@ -800,11 +793,11 @@
             updateRowLogic(row)
         })
       }
-
       function updateButtons() {
-        document.getElementById('undoBtn').disabled = historyIndex <= 0
-        document.getElementById('redoBtn').disabled =
-          historyIndex >= history.length - 1
+        const undoBtn = document.getElementById('undoBtn')
+        const redoBtn = document.getElementById('redoBtn')
+        undoBtn.disabled = historyIndex <= 0
+        redoBtn.disabled = historyIndex >= history.length - 1
       }
 
       // wire events
@@ -835,6 +828,8 @@
 
       // initial build
       rebuildTable()
+      saveState()
+      updateButtons()
 
       window.addEventListener('resize', function () {
         setVhUnit()
